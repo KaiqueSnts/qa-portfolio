@@ -2,6 +2,9 @@
 
 ![GitHub Actions](https://github.com/KaiqueSnts/qa-portfolio/actions/workflows/tests.yml/badge.svg)
 
+
+**[Ver relatório da última execução](https://kaiquesnts.github.io/qa-portfolio/)** (com vídeo e trace de cada teste)
+
 A test automation project built with **Playwright Test and TypeScript**, covering web UI tests, REST API tests, and end-to-end (E2E) workflows. The project also includes a **GitHub Actions** pipeline to run tests continuously and upload HTML reports as workflow artifacts.
 
 The goal is to demonstrate practical QA automation skills, including test design, reusable test components, API validation, test data management, and CI execution.
