@@ -1,7 +1,5 @@
 # QA Automation Portfolio — Playwright & TypeScript
 
-![Tests](https://github.com/KaiqueSnts/qa-portfolio/actions/workflows/tests.yml/badge.svg?branch=main)
-
 ![GitHub Actions](https://github.com/KaiqueSnts/qa-portfolio/actions/workflows/tests.yml/badge.svg)
 
 A test automation project built with **Playwright Test and TypeScript**, covering web UI tests, REST API tests, and end-to-end (E2E) workflows. The project also includes a **GitHub Actions** pipeline to run tests continuously and upload HTML reports as workflow artifacts.
