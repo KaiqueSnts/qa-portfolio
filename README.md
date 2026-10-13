@@ -1,6 +1,6 @@
 # QA Automation Portfolio — Playwright & TypeScript
 
-![Tests](https://github.com/KaiqueSnts/qa-portfolio/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/KaiqueSnts/qa-portfolio/actions/workflows/tests.yml/badge.svg?branch=main)
 
 ![GitHub Actions](https://github.com/KaiqueSnts/qa-portfolio/actions/workflows/tests.yml/badge.svg)
 
