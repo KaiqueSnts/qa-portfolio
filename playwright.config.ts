@@ -11,18 +11,23 @@ export default defineConfig({
   workers: isCI ? 2 : undefined,
   timeout: 30_000,
   expect: { timeout: 5_000 },
+  // No CI cada job gera um "blob"; o job "report" junta tudo em um único relatório HTML.
   reporter: isCI
-    ? [['github'], ['html', { open: 'never' }]]
+    ? [['github'], ['blob']]
     : [['list'], ['html', { open: 'never' }]],
   use: {
+    // O saucedemo usa o atributo data-test (e não data-testid) nos elementos.
     testIdAttribute: 'data-test',
-    trace: 'on-first-retry',
+    // No CI grava trace e vídeo de todos os testes (evidências para o portfólio).
+    trace: isCI ? 'on' : 'on-first-retry',
     screenshot: 'only-on-failure',
+    video: isCI ? 'on' : 'retain-on-failure',
+    // Câmera lenta opcional: $env:SLOWMO=800 (PowerShell)
     launchOptions: { slowMo: Number(process.env.SLOWMO ?? 0) },
   },
   projects: [
     {
-
+      // Faz login via UI uma única vez e salva a sessão (storageState).
       name: 'setup',
       testDir: './tests/e2e',
       testMatch: /.*\.setup\.ts/,
@@ -35,7 +40,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], baseURL: env.webUrl },
     },
     {
-
+      // Testes de API não precisam de browser.
       name: 'api',
       testDir: './tests/api',
     },

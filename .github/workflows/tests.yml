@@ -21,6 +21,8 @@ jobs:
     name: API tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      PLAYWRIGHT_BLOB_OUTPUT_NAME: report-api.zip
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,18 +31,20 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright test --project=api $GREP_ARGS
-      - name: Upload report
+      - name: Upload blob report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-api
-          path: playwright-report/
-          retention-days: 14
+          name: blob-report-api
+          path: blob-report/
+          retention-days: 7
 
   web:
     name: Web + E2E tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      PLAYWRIGHT_BLOB_OUTPUT_NAME: report-web.zip
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,10 +54,60 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --project=web --project=e2e $GREP_ARGS
-      - name: Upload report
+      - name: Upload blob report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-web
+          name: blob-report-web
+          path: blob-report/
+          retention-days: 7
+
+  report:
+    name: Merge report
+    needs: [api, web]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    env:
+      PLAYWRIGHT_HTML_OPEN: never
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+      - run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
           path: playwright-report/
           retention-days: 14
+      - name: Upload Pages artifact
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report/
+
+  deploy:
+    name: Publish report (GitHub Pages)
+    needs: report
+    if: ${{ !cancelled() && needs.report.result == 'success' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Link no resumo da execução
+        run: |
+          echo "### Relatório de testes - ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
